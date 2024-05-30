@@ -1,0 +1,16 @@
+{
+  "name": "@blockcode/device-pyboard",
+  "module": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "bun-build",
+    "dev": "bun-build --watch ./src"
+  },
+  "devDependencies": {
+    "bun-types": "latest",
+    "bun-build": "link:bun-build"
+  },
+  "dependencies": {
+    "@blockcode/core": "workspace:*"
+  }
+}

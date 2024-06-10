@@ -48,7 +48,7 @@ export const downloadDevice = async (board, files, progress) => {
   const len = files.length;
   let finished = 0;
   const reporter = (x) => {
-    progress(parseInt((finished + (1 / len) * (x / 100)) * 100));
+    progress(((finished + (1 / len) * (x / 100)) * 100).toFixed(1));
   };
   for (const file of files) {
     let { id: filePath, content } = file;

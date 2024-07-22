@@ -192,6 +192,17 @@ export default class MicroPythonBoard {
     await this.serial.write(CTRL_D);
   }
 
+  async hardwareReset() {
+    if (this.rejectRun) {
+      this.rejectRun(new Error('pre reset'));
+      this.rejectRun = null;
+    }
+    // Hardware reboot
+    await this.enterRawRepl();
+    await this.execRaw('import machine\nmachine.reset()');
+    await this.exitRawRepl();
+  }
+
   /**
    * fs functions
    */

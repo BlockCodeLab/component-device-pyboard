@@ -8,7 +8,7 @@ const CTRL_D = '\x04'; // reset (ctrl-d)
 const CTRL_E = '\x05'; // paste mode (ctrl-e)
 const CTRL_F = '\x06'; // safe boot (ctrl-f)
 
-const CHUNK_SIZE = 128;
+const CHUNK_SIZE = 1024;
 
 function fixLineBreak(str) {
   // https://stackoverflow.com/questions/4025760/python-file-write-creating-extra-carriage-return
@@ -50,7 +50,7 @@ export default class MicroPythonBoard {
       if (this.serial) {
         this.serial
           .open({
-            baudRate: 115200,
+            baudRate: 1500000,
             ...options,
           })
           .then(() => resolve())

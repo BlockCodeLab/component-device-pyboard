@@ -31,12 +31,30 @@ export const showDownloadScreen = async (board, displayPackage) => {
   await board.stop();
   await board.enterRawRepl();
   await board.execRaw(`from ${displayPackage} import display`);
-  await board.execRaw('import device.ui.download_screen as download_screen');
+  await board.execRaw('import popui.download_screen as download_screen');
   await board.execRaw('download_screen.render(display)');
   await board.exitRawRepl();
 };
 
-export const downloadDevice = async (board, files, progress) => {
+export const configDevice = async (board, settings) => {
+  await board.stop();
+  await board.enterRawRepl();
+  await board.execRaw('import device.config as config');
+  for (const [key, value] of Object.entries(settings)) {
+    if (typeof value === 'number' && value % 1 === 0) {
+      await board.execRaw(`config.set_int("${key}", ${value})`);
+    } else if (typeof value === 'boolean') {
+      await board.execRaw(`config.set_bool("${key}", ${value ? 'True' : 'False'})`);
+    } else {
+      await board.execRaw(`config.set_str("${key}", "${value}")`);
+    }
+  }
+  await board.execRaw('config.save()');
+  await board.exitRawRepl();
+  await board.hardwareReset();
+};
+
+export const downloadDevice = async (board, files, progress, softReset = false) => {
   await board.stop();
 
   const len = files.length;
@@ -57,5 +75,9 @@ export const downloadDevice = async (board, files, progress) => {
     finished += 1 / len;
   }
   progress(100);
-  await board.hardwareReset();
+  if (softReset) {
+    await board.reset();
+  } else {
+    await board.hardwareReset();
+  }
 };

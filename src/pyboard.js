@@ -199,8 +199,8 @@ export default class MicroPythonBoard {
     }
     // Hardware reboot
     await this.enterRawRepl();
-    await this.execRaw('import machine\nmachine.reset()');
-    await this.exitRawRepl();
+    this.execRaw('import machine\nmachine.reset()');
+    // await this.exitRawRepl();
   }
 
   /**

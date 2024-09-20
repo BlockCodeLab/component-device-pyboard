@@ -192,7 +192,7 @@ export default class MicroPythonBoard {
     await this.serial.write(CTRL_D);
   }
 
-  async hardwareReset() {
+  async hardReset() {
     if (this.rejectRun) {
       this.rejectRun(new Error('pre reset'));
       this.rejectRun = null;

@@ -10,7 +10,7 @@ export const connectDevice = async (filters, setDevice) => {
 
   // Check the device is connect state
   const checkDevice = () =>
-    setTimeout(async () => {
+    setTimeout(() => {
       if (board.connected) {
         checkDevice();
       } else {
@@ -51,10 +51,9 @@ export const configDevice = async (board, settings) => {
   }
   await board.execRaw('config.save()');
   await board.exitRawRepl();
-  await board.hardwareReset();
 };
 
-export const downloadDevice = async (board, files, progress, softReset = false) => {
+export const writeFiles = async (board, files, progress) => {
   await board.stop();
 
   const len = files.length;
@@ -75,9 +74,4 @@ export const downloadDevice = async (board, files, progress, softReset = false) 
     finished += 1 / len;
   }
   progress(100);
-  if (softReset) {
-    await board.reset();
-  } else {
-    await board.hardwareReset();
-  }
 };

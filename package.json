@@ -11,6 +11,8 @@
     "bun-build": "github:kankungyip/bun-build"
   },
   "dependencies": {
+    "crypto-js": "^4.2.0",
+    "esptool-js": "^0.4.5",
     "@blockcode/core": "workspace:*"
   }
 }

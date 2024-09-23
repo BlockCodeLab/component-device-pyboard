@@ -8,7 +8,9 @@ const CTRL_D = '\x04'; // reset (ctrl-d)
 const CTRL_E = '\x05'; // paste mode (ctrl-e)
 const CTRL_F = '\x06'; // safe boot (ctrl-f)
 
-const CHUNK_SIZE = 1024;
+const CMD_CHUNK_SIZE = 512;
+const FILE_CHUNK_SIZE = 80;
+const BAUD_RATE = 115200 * 10; // 1500000
 
 function fixLineBreak(str) {
   // https://stackoverflow.com/questions/4025760/python-file-write-creating-extra-carriage-return
@@ -50,7 +52,7 @@ export default class MicroPythonBoard {
       if (this.serial) {
         this.serial
           .open({
-            baudRate: 1500000,
+            baudRate: BAUD_RATE,
             ...options,
           })
           .then(() => resolve())
@@ -103,8 +105,8 @@ export default class MicroPythonBoard {
       if (expect) {
         this.readUntil(expect, dataConsumer).then(resolve);
       }
-      for (let i = 0; i < cmd.length; i += CHUNK_SIZE) {
-        await this.serial.write(cmd.slice(i, i + CHUNK_SIZE));
+      for (let i = 0; i < cmd.length; i += CMD_CHUNK_SIZE) {
+        await this.serial.write(cmd.slice(i, i + CMD_CHUNK_SIZE));
         await sleep(10);
       }
       if (!expect) {
@@ -312,7 +314,7 @@ export default class MicroPythonBoard {
       command += 'hash = hashlib.sha256()\n';
       command += `with open('${filePath}', 'rb') as f:\n`;
       command += '  while True:\n';
-      command += `    c = f.read(${CHUNK_SIZE})\n`;
+      command += `    c = f.read(${FILE_CHUNK_SIZE})\n`;
       command += '    if not c: break\n';
       command += '    hash.update(c)\n';
       command += 'print(binascii.hexlify(hash.digest()).decode())\n';
@@ -377,12 +379,11 @@ export default class MicroPythonBoard {
     }
     // write file
     out += await this.execRaw(`f=open('${dest}','w')\nw=f.write`);
-    const chunkSize = 48;
-    for (let i = 0; i < hexArray.length; i += chunkSize) {
-      let slice = hexArray.slice(i, i + chunkSize);
-      let bytes = slice.map((h) => `0x${h}`);
-      let line = `w(bytes([${bytes.join(',')}]))`;
-      out += await this.execRaw(line);
+    for (let i = 0; i < hexArray.length; i += FILE_CHUNK_SIZE) {
+      // const bytes = hexArray.slice(i, i + FILE_CHUNK_SIZE).map((h) => `0x${h}`);
+      // out += await this.execRaw(`w(bytes([${bytes.join(',')}]))`);
+      const bytes = hexArray.slice(i, i + FILE_CHUNK_SIZE).map((h) => `\\x${h}`);
+      out += await this.execRaw(`w(b"${bytes.join('')}")`);
       dataConsumer(parseInt((i / hexArray.length) * 100));
     }
     out += await this.execRaw(`f.close()`);

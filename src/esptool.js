@@ -2,9 +2,13 @@ import MD5 from 'crypto-js/md5';
 import Latin1 from 'crypto-js/enc-latin1';
 import { ESPLoader, Transport } from 'esptool-js';
 
+let esploader = null;
+
 export const connectESP32Device = async (filters) => {
+  await disconnectESP32Device(esploader);
+
   const device = await navigator.serial.requestPort({ filters });
-  const esploader = new ESPLoader({
+  esploader = new ESPLoader({
     transport: new Transport(device, true),
     baudrate: 921600,
   });
@@ -18,7 +22,7 @@ export const connectESP32Device = async (filters) => {
 };
 
 export const disconnectESP32Device = async (esploader) => {
-  await esploader.transport.disconnect();
+  await esploader?.transport?.disconnect();
 };
 
 export const eraseFlash = async (esploader) => {

@@ -27,17 +27,10 @@ export const disconnectDevice = async (board, setDevice) => {
   setDevice(null);
 };
 
-export const showDownloadScreen = async (board, displayPackage) => {
+export const showDownloadScreen = async (board) => {
   await board.stop();
   await board.enterRawRepl();
-  // await board.execRaw(`from ${displayPackage} import display`);
-  // await board.execRaw('import popui.screen.download as download_screen');
-  // await board.execRaw('download_screen.render(display)');
-  let line = '';
-  line += 'import popui.screen.download as download_screen\n';
-  line += `from ${displayPackage} import display\n`;
-  line += 'download_screen.render(display)\n';
-  const out = await board.execRaw(line);
+  const out = await board.execRaw('import download_screen\n');
   await board.exitRawRepl();
   return out;
 };

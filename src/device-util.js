@@ -1,30 +1,50 @@
 import MicroPythonBoard from './pyboard';
 import imageBase64 from './image-base64';
 
-export const connectDevice = async (filters, setDevice) => {
+export const connectDevice = async (filters) => {
   const board = new MicroPythonBoard();
   await board.requestPort(filters);
   await board.connect();
-  await board.stop();
-  setDevice(board);
-
-  // Check the device is connect state
-  const checkDevice = () =>
-    setTimeout(() => {
-      if (board.connected) {
-        checkDevice();
-      } else {
-        setDevice(null);
-      }
-    }, 1000);
-  checkDevice();
-
   return board;
 };
 
-export const disconnectDevice = async (board, setDevice) => {
-  await board.disconnect();
-  setDevice(null);
+export const disconnectDevice = async (board) => {
+  await board?.disconnect();
+};
+
+export const checkDevice = (board, timeout = 1000) => {
+  let controller;
+  const checker = new Promise((resolve, reject) => {
+    controller = resolve;
+    const check = () => {
+      setTimeout(() => {
+        if (board.connected) {
+          check();
+        } else {
+          reject('disconnected');
+        }
+      }, timeout);
+    };
+    check();
+  });
+  return {
+    cancel() {
+      return controller();
+      return this;
+    },
+    catch(...args) {
+      checker.catch(...args);
+      return this;
+    },
+    then(...args) {
+      checker.then(...args);
+      return this;
+    },
+    finally(...args) {
+      checker.finally(...args);
+      return this;
+    },
+  };
 };
 
 export const configDevice = async (board, settings) => {

@@ -27,14 +27,6 @@ export const disconnectDevice = async (board, setDevice) => {
   setDevice(null);
 };
 
-export const showDownloadScreen = async (board) => {
-  await board.stop();
-  await board.enterRawRepl();
-  const out = await board.execRaw('import download_screen\n');
-  await board.exitRawRepl();
-  return out;
-};
-
 export const configDevice = async (board, settings) => {
   await board.stop();
   await board.enterRawRepl();
@@ -54,26 +46,40 @@ export const configDevice = async (board, settings) => {
   }
   // await board.execRaw('config.save()');
   line += 'config.save()\n';
-  const out = await board.execRaw(line);
+  await board.execRaw(line);
   await board.exitRawRepl();
-  return out;
 };
 
-export const checkFlash = async (board, files) => {
+export const checkFlashFree = async (board, files) => {
   await board.stop();
   let size = 0;
   for (const file of files) {
     size += file.content?.length ?? file.data?.length ?? 0;
   }
   await board.enterRawRepl();
-  const line = `from device.flash import check_flash_free\nprint(check_flash_free(${size}))\n`;
-  const output = await board.execRaw(line);
+  let line = 'from device.flash import check_flash_free\n';
+  line += `print(check_flash_free(${size}))\n`;
+  const out = await board.execRaw(line);
   await board.exitRawRepl();
-  return output.slice(2, -3).trim() === 'True';
+  return out.slice(2, -3).trim() === 'True';
+};
+
+export const eraseAll = async (board, exclude) => {
+  await board.stop();
+  await board.enterRawRepl();
+  await board.execRaw('import download_screen\n');
+  let line = 'from device.flash import erase_all\n';
+  line += `erase_all(${exclude ? JSON.stringify(exclude) : ''})\n`;
+  await board.execRaw(line);
+  await board.exitRawRepl();
 };
 
 export const writeFiles = async (board, files, progress) => {
   await board.stop();
+
+  await board.enterRawRepl();
+  await board.execRaw('import download_screen\n');
+  await board.exitRawRepl();
 
   const len = files.length;
   let finished = 0;

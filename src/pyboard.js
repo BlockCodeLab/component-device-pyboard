@@ -10,7 +10,7 @@ const CTRL_F = '\x06'; // safe boot (ctrl-f)
 
 const CMD_CHUNK_SIZE = 512;
 const FILE_CHUNK_SIZE = 80;
-const BAUD_RATE = 115200 * 10; // 1500000
+const BAUD_RATE = 115200;
 
 function fixLineBreak(str) {
   // https://stackoverflow.com/questions/4025760/python-file-write-creating-extra-carriage-return

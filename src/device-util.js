@@ -77,9 +77,9 @@ export const checkFlashFree = async (board, files) => {
     size += file.content?.length ?? file.data?.length ?? 0;
   }
   await board.enterRawRepl();
-  let line = 'from device.flash import check_flash_free\n';
-  line += `print(check_flash_free(${size}))\n`;
-  const out = await board.execRaw(line);
+  let out = await board.execRaw('from device.flash import check_flash_free\n');
+  if (out.includes('ImportError: ')) return true;
+  out = await board.execRaw(`print(check_flash_free(${size}))\n`);
   await board.exitRawRepl();
   return out.slice(2, -3).trim() === 'True';
 };
